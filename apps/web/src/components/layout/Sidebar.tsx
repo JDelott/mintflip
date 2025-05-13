@@ -8,22 +8,23 @@ interface SidebarProps {
 const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
   const navItems = [
     { id: 'home', label: 'Home', icon: <HomeIcon /> },
-    { id: 'search', label: 'Search', icon: <SearchIcon /> },
-    { id: 'library', label: 'Your Library', icon: <LibraryIcon /> },
+    { id: 'search', label: 'Discover', icon: <SearchIcon /> },
+    { id: 'library', label: 'My Collection', icon: <LibraryIcon /> },
   ];
 
-  const playlists = [
-    { id: 'chill', name: 'Chill Vibes' },
-    { id: 'workout', name: 'Workout Mix' },
-    { id: 'study', name: 'Study Focus' },
-    { id: 'dinner', name: 'Dinner Party' },
-    { id: 'indie', name: 'Indie Essentials' },
+  const marketCategories = [
+    { id: 'trending', name: 'Trending NFTs' },
+    { id: 'new', name: 'New Releases' },
+    { id: 'exclusive', name: 'Exclusive Licenses' },
+    { id: 'commercial', name: 'Commercial Use' },
+    { id: 'creators', name: 'Top AI Creators' },
   ];
 
   return (
     <div className="w-64 bg-black py-6">
       <div className="px-6 mb-8">
-        <h1 className="text-2xl font-bold text-white">MintFlip Music</h1>
+        <h1 className="text-2xl font-bold text-white">MintFlip NFT</h1>
+        <p className="text-xs text-text-secondary mt-1">AI Music Marketplace</p>
       </div>
       
       <nav className="mb-8">
@@ -47,16 +48,22 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
       </nav>
       
       <div className="px-6">
-        <h2 className="text-sm uppercase tracking-wider font-bold text-text-secondary mb-4">Playlists</h2>
+        <h2 className="text-sm uppercase tracking-wider font-bold text-text-secondary mb-4">Marketplace</h2>
         <ul className="space-y-3">
-          {playlists.map(playlist => (
-            <li key={playlist.id}>
+          {marketCategories.map(category => (
+            <li key={category.id}>
               <button className="w-full text-left text-text-secondary hover:text-white transition-colors">
-                {playlist.name}
+                {category.name}
               </button>
             </li>
           ))}
         </ul>
+      </div>
+      
+      <div className="mt-8 px-6">
+        <button className="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md font-medium transition-colors">
+          Upload Your AI Track
+        </button>
       </div>
     </div>
   );

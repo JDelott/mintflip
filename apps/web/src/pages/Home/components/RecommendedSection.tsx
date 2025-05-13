@@ -1,42 +1,58 @@
 import TrackCard from '../../../components/ui/TrackCard';
+import { getAlbumCover } from '../../../utils/imageUtils';
 
 const RecommendedSection = () => {
   const recommendedTracks = [
     {
       id: '6',
-      title: 'As It Was',
-      artist: 'Harry Styles',
-      albumCover: 'https://via.placeholder.com/300/339/fff?text=As+It+Was',
+      title: 'Synthetic Emotions',
+      artist: 'DeepFlow',
+      albumCover: getAlbumCover('Synthetic Emotions DeepFlow 6'),
+      nftPrice: '0.15 ETH',
+      licenseType: 'Exclusive',
+      sold: 12
     },
     {
       id: '7',
-      title: 'Stay',
-      artist: 'The Kid LAROI, Justin Bieber',
-      albumCover: 'https://via.placeholder.com/300/449/fff?text=Stay',
+      title: 'Automated Symphony',
+      artist: 'Cypher Beats',
+      albumCover: getAlbumCover('Automated Symphony Cypher Beats 7'),
+      nftPrice: '0.09 ETH',
+      licenseType: 'Commercial',
+      sold: 8
     },
     {
       id: '8',
-      title: 'Bad Habits',
-      artist: 'Ed Sheeran',
-      albumCover: 'https://via.placeholder.com/300/559/fff?text=Bad+Habits',
+      title: 'Machine Learning Love Songs',
+      artist: 'Neural Noise',
+      albumCover: getAlbumCover('Machine Learning Love Songs Neural Noise 8'),
+      nftPrice: '0.07 ETH',
+      licenseType: 'Standard',
+      sold: 15
     },
     {
       id: '9',
-      title: 'Easy On Me',
-      artist: 'Adele',
-      albumCover: 'https://via.placeholder.com/300/669/fff?text=Easy+On+Me',
+      title: 'Conscious Algorithm',
+      artist: 'Byte Harmony',
+      albumCover: getAlbumCover('Conscious Algorithm Byte Harmony 9'),
+      nftPrice: '0.21 ETH',
+      licenseType: 'Premium',
+      sold: 5
     },
     {
       id: '10',
-      title: 'STAY (with Justin Bieber)',
-      artist: 'The Kid LAROI',
-      albumCover: 'https://via.placeholder.com/300/779/fff?text=STAY',
+      title: 'Pixels and Frequencies',
+      artist: 'CodeMelodics',
+      albumCover: getAlbumCover('Pixels and Frequencies CodeMelodics 10'),
+      nftPrice: '0.04 ETH',
+      licenseType: 'Standard',
+      sold: 9
     },
   ];
 
   return (
     <section>
-      <h2 className="sectionheading">Recommended for You</h2>
+      <h2 className="sectionheading">Top Selling NFTs</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
         {recommendedTracks.map((track) => (
           <TrackCard key={track.id} track={track} />

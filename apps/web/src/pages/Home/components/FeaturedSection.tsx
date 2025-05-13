@@ -1,8 +1,14 @@
+import { getFeaturedImage, getNftFeaturedImage } from '../../../utils/imageUtils';
+
 const FeaturedSection = () => {
+  // Try to use this specific high-quality image, fall back to our function if it fails
+  const featuredImage = "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1748&auto=format&fit=crop" 
+    || getNftFeaturedImage();
+  
   const featuredPlaylist = {
-    title: "Today's Top Hits",
-    description: "The biggest hits right now",
-    coverImage: "https://via.placeholder.com/800x400/333/fff?text=Today's+Top+Hits",
+    title: "Trending AI NFTs",
+    description: "Discover and license the hottest AI-generated tracks",
+    coverImage: featuredImage,
   };
 
   return (
@@ -20,9 +26,9 @@ const FeaturedSection = () => {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
             </svg>
-            Play
+            Explore
           </button>
-          <button className="btnbase btnsecondary">Save</button>
+          <button className="btnbase btnsecondary">Upload AI Track</button>
         </div>
       </div>
     </div>

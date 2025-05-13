@@ -1,11 +1,20 @@
 import { useState } from 'react';
 import { PlayIcon, PauseIcon, SkipNextIcon, SkipPreviousIcon, VolumeIcon } from '../common/Icons';
+import { getAlbumCover } from '../../utils/imageUtils';
 
 const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(80);
   const [currentTime, setCurrentTime] = useState(0);
   const duration = 217; // 3:37 in seconds
+  
+  const currentTrack = {
+    title: "Digital Universe",
+    artist: "Quantum Circuit",
+    albumCover: getAlbumCover("Digital Universe Quantum Circuit current"),
+    nftPrice: "0.14 ETH",
+    licenseType: "Premium"
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -17,13 +26,21 @@ const MusicPlayer = () => {
     <div className="h-20 bg-background-elevated border-t border-background-highlight px-6 flex items-center">
       <div className="w-1/4 flex items-center">
         <img
-          src="https://via.placeholder.com/56"
+          src={currentTrack.albumCover}
           alt="Album Cover"
           className="h-14 w-14 rounded-md shadow-md mr-4"
         />
         <div>
-          <h4 className="text-sm font-medium">Song Title</h4>
-          <p className="text-xs text-text-secondary">Artist Name</p>
+          <h4 className="text-sm font-medium">{currentTrack.title}</h4>
+          <p className="text-xs text-text-secondary">{currentTrack.artist}</p>
+          <div className="flex items-center mt-1">
+            <span className="text-xs bg-primary/20 text-primary rounded-full px-2 py-0.5 mr-1">
+              {currentTrack.nftPrice}
+            </span>
+            <span className="text-xs text-text-secondary">
+              {currentTrack.licenseType}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -60,6 +77,9 @@ const MusicPlayer = () => {
       </div>
 
       <div className="w-1/4 flex justify-end items-center">
+        <button className="text-xs bg-primary hover:bg-primary-dark rounded-full px-3 py-1 mr-4 text-white transition-colors">
+          Buy NFT
+        </button>
         <VolumeIcon />
         <div className="w-24 h-1 bg-background-highlight rounded-full mx-3 group cursor-pointer">
           <div

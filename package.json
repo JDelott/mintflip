@@ -14,6 +14,7 @@
     "web:dev": "npm run dev --filter=web"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.6",
     "prettier": "^3.5.3",
     "turbo": "^2.5.3",
     "typescript": "5.8.2"
@@ -25,5 +26,9 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.6",
+    "tailwindcss": "^4.1.6"
+  }
 }

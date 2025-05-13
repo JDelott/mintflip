@@ -1,72 +1,160 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+@theme {
+  /* Main colors */
+  --color-primary: #1db954;
+  --color-primary-dark: #1aa34a;
+  --color-primary-light: #3ed672;
+  --color-secondary: #191414;
+  --color-white: #ffffff;
+  --color-text-secondary: #b3b3b3;
+  --color-background: #121212;
+  --color-background-elevated: #282828;
+  --color-background-highlight: #333333;
+  --color-background-card: #181818;
+  --color-black: #000000;
+  --color-black-80: oklch(from #000000 l c h / 80%);
+  --color-transparent: transparent;
+  
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  /* Typography */
+  --font-heading: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-normal: 0.3s ease-in-out;
 }
 
 body {
+  font-family: var(--font-body);
+  background-color: var(--color-background);
+  color: var(--color-white);
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  padding: 0;
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-background-highlight);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Button utilities */
+@utility btnbase {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+@utility btnprimary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  
+  &:hover {
+    background-color: var(--color-primary-light);
+    transform: scale(1.05);
   }
-  a:hover {
-    color: #747bff;
+}
+
+@utility btnsecondary {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-white);
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
   }
-  button {
-    background-color: #f9f9f9;
+}
+
+@utility iconbtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
   }
+}
+
+@utility card {
+  background-color: var(--color-background-card);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: background-color var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--color-background-elevated);
+  }
+}
+
+@utility sectionheading {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  margin-top: 2rem;
+}
+
+@utility tracktitle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-top: 0.5rem;
+  color: var(--color-white);
+}
+
+@utility trackartist {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
 }

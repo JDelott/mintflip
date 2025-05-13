@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import Layout from './components/layout/Layout'
 import HomePage from './pages/Home/HomePage'
-import './styles/global.css'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home')

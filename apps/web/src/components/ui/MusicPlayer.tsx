@@ -50,7 +50,7 @@ const MusicPlayer = () => {
             <SkipPreviousIcon />
           </button>
           <button
-            className="mx-3 bg-white rounded-full p-2 hover:scale-110 transition-transform"
+            className="mx-3 bg-primary text-white rounded-full w-10 h-10 flex items-center justify-center hover:scale-110 transition-transform"
             onClick={() => setIsPlaying(!isPlaying)}
           >
             {isPlaying ? <PauseIcon /> : <PlayIcon />}

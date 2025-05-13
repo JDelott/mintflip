@@ -1,0 +1,21 @@
+{
+  "name": "@repo/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "hardhat compile",
+    "start": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "build:package": "hardhat compile && cp -r artifacts ../web/src/artifacts",
+    "test": "hardhat test",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "hardhat": "^2.19.0",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0"
+  }
+}

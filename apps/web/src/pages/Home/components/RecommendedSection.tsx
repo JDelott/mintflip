@@ -52,7 +52,7 @@ const RecommendedSection = () => {
 
   return (
     <section>
-      <h2 className="sectionheading">Top Selling NFTs</h2>
+      <h2 className="sectionheading cursor-pointer">Top Selling NFTs</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
         {recommendedTracks.map((track) => (
           <TrackCard key={track.id} track={track} />

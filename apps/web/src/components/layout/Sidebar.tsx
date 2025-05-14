@@ -34,7 +34,7 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
             <li key={item.id}>
               <button
                 onClick={() => onNavigate(item.id)}
-                className={`flex items-center w-full py-3 px-4 rounded-md transition-colors ${
+                className={`flex items-center w-full py-3 px-4 rounded-md transition-colors cursor-pointer ${
                   currentPage === item.id
                     ? 'bg-background-elevated text-white'
                     : 'text-text-secondary hover:text-white'
@@ -53,7 +53,7 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
         <ul className="space-y-3">
           {marketCategories.map(category => (
             <li key={category.id}>
-              <button className="w-full text-left text-text-secondary hover:text-white transition-colors">
+              <button className="w-full text-left text-text-secondary hover:text-white transition-colors cursor-pointer">
                 {category.name}
               </button>
             </li>
@@ -62,7 +62,7 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
       </div>
       
       <div className="mt-8 px-6">
-        <button className="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md font-medium transition-colors">
+        <button className="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md font-medium transition-colors cursor-pointer">
           Upload Your AI Track
         </button>
       </div>

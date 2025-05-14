@@ -4,7 +4,7 @@ import HomePage from './pages/Home/HomePage'
 import ProfilePage from './components/profile/ProfilePage'
 import { NetworkSwitcher } from './components/profile/NetworkSwitcher'
 import { useAccount, useChainId } from 'wagmi'
-import { sepolia } from 'wagmi/chains'
+import { hardhat } from 'wagmi/chains'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home')
@@ -26,8 +26,8 @@ function App() {
     }
   }
 
-  // Determine if we need to show wrong network UI
-  const isWrongNetwork = isConnected && chainId !== sepolia.id;
+  // Accept both hardhat and sepolia as valid networks for development
+  const isWrongNetwork = isConnected && chainId !== hardhat.id;
 
   return (
     <>

@@ -14,7 +14,10 @@
     "web:dev": "npm run dev --filter=web"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@tailwindcss/vite": "^4.1.6",
+    "hardhat": "^2.24.0",
     "prettier": "^3.5.3",
     "turbo": "^2.5.3",
     "typescript": "5.8.2"

@@ -3,22 +3,22 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
 import { http, WagmiProvider } from 'wagmi'
-import { sepolia } from 'wagmi/chains'
+import { hardhat } from 'wagmi/chains'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 
-// Project ID from WalletConnect Cloud (required for WalletConnect v2)
-const projectId = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || 'YOUR_WALLET_CONNECT_PROJECT_ID'
+// Project ID from WalletConnect Cloud
+const projectId = '30d404517cc9c411d88eeabec2257428'
 
 // Create a combined config for both RainbowKit and wagmi
 const config = getDefaultConfig({
   appName: 'MintFlip',
   projectId,
-  chains: [sepolia],
+  chains: [hardhat],
   transports: {
-    [sepolia.id]: http(),
+    [hardhat.id]: http('http://127.0.0.1:8545'),
   },
 })
 

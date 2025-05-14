@@ -16,29 +16,29 @@ interface TrackCardProps {
 
 const TrackCard = ({ track }: TrackCardProps) => {
   return (
-    <div className="card group">
+    <div className="card group cursor-pointer">
       <div className="relative mb-3">
         <img
           src={track.albumCover}
           alt={`${track.title} by ${track.artist}`}
-          className="w-full aspect-square object-cover rounded shadow-md"
+          className="w-full aspect-square object-cover rounded shadow-md cursor-pointer"
         />
-        <div className="absolute top-2 right-2 bg-primary px-2 py-1 rounded-full text-xs font-bold shadow-md">
+        <div className="absolute top-2 right-2 bg-primary px-2 py-1 rounded-full text-xs font-bold shadow-md cursor-pointer">
           {track.nftPrice}
         </div>
-        <button className="absolute right-3 bottom-3 bg-primary p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110 transform translate-y-2 group-hover:translate-y-0">
+        <button className="absolute right-3 bottom-3 bg-primary p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110 transform translate-y-2 group-hover:translate-y-0 cursor-pointer">
           <PlayIcon />
         </button>
       </div>
-      <h3 className="tracktitle truncate">{track.title}</h3>
-      <p className="trackartist truncate">{track.artist}</p>
+      <h3 className="tracktitle truncate cursor-pointer">{track.title}</h3>
+      <p className="trackartist truncate cursor-pointer">{track.artist}</p>
       {track.licenseType && (
         <div className="flex justify-between items-center mt-2">
-          <span className="text-xs px-2 py-1 bg-background-elevated rounded-full text-text-secondary">
+          <span className="text-xs px-2 py-1 bg-background-elevated rounded-full text-text-secondary cursor-pointer">
             {track.licenseType} License
           </span>
           {track.sold && (
-            <span className="text-xs text-text-secondary">
+            <span className="text-xs text-text-secondary cursor-pointer">
               {track.sold} sold
             </span>
           )}

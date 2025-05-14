@@ -1,4 +1,4 @@
-import { HomeIcon, SearchIcon, LibraryIcon } from '../common/Icons';
+import { HomeIcon, SearchIcon, LibraryIcon, UserIcon } from '../common/Icons';
 
 interface SidebarProps {
   onNavigate: (page: string) => void;
@@ -10,6 +10,7 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
     { id: 'home', label: 'Home', icon: <HomeIcon /> },
     { id: 'search', label: 'Discover', icon: <SearchIcon /> },
     { id: 'library', label: 'My Collection', icon: <LibraryIcon /> },
+    { id: 'profile', label: 'Profile', icon: <UserIcon /> },
   ];
 
   const marketCategories = [

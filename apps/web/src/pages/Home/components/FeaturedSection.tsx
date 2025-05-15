@@ -1,12 +1,11 @@
-import { getFeaturedImage, getNftFeaturedImage } from '../../../utils/imageUtils';
+import { getNftFeaturedImage } from '../../../utils/imageUtils';
 
 const FeaturedSection = () => {
-  // Try to use this specific high-quality image, fall back to our function if it fails
-  const featuredImage = "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1748&auto=format&fit=crop" 
-    || getNftFeaturedImage();
+  // Use a reliable image url or fallback to random image function
+  const featuredImage = getNftFeaturedImage();
   
   const featuredPlaylist = {
-    title: "Trending AI NFTs",
+    title: "Trending AI Music",
     description: "Discover and license the hottest AI-generated tracks",
     coverImage: featuredImage,
   };

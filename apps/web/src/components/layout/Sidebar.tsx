@@ -14,7 +14,7 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
   ];
 
   const marketCategories = [
-    { id: 'trending', name: 'Trending NFTs' },
+    { id: 'trending', name: 'Trending Tracks' },
     { id: 'new', name: 'New Releases' },
     { id: 'exclusive', name: 'Exclusive Licenses' },
     { id: 'commercial', name: 'Commercial Use' },
@@ -24,7 +24,7 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
   return (
     <div className="w-64 bg-black py-6">
       <div className="px-6 mb-8">
-        <h1 className="text-2xl font-bold text-white">MintFlip NFT</h1>
+        <h1 className="text-2xl font-bold text-white">MintFlip</h1>
         <p className="text-xs text-text-secondary mt-1">AI Music Marketplace</p>
       </div>
       

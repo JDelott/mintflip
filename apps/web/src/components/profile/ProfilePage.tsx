@@ -7,6 +7,8 @@ import { useUserAuth } from '../../hooks/useUserAuth';
 import { fetchUserProfile, updateUserProfile } from '../../services/userService';
 import type { UserProfile, UpdateProfileData } from '../../services/userService';
 
+const DEFAULT_AVATAR_URL = "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp";
+
 const defaultGenres = [
   'Hip-Hop', 'Electronic', 'Pop', 'Rock', 'Lo-Fi', 'Jazz', 'Classical', 'Ambient'
 ];
@@ -42,7 +44,7 @@ const ProfilePage = () => {
         setFormData({
           username: userProfile.username || '',
           bio: userProfile.bio || '',
-          avatarUrl: userProfile.avatarUrl || '',
+          avatarUrl: userProfile.avatarUrl || DEFAULT_AVATAR_URL,
           favoriteGenres: userProfile.favoriteGenres || []
         });
       } catch (error) {
@@ -166,9 +168,11 @@ const ProfilePage = () => {
         <div className="p-8 pt-0 relative">
           {/* Avatar */}
           <div className="absolute -top-12 left-8 w-24 h-24 rounded-full border-4 border-[#111] overflow-hidden shadow-lg">
-            {profile?.avatarUrl && (
-              <img src={profile.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
-            )}
+            <img 
+              src={profile?.avatarUrl || DEFAULT_AVATAR_URL} 
+              alt="Profile" 
+              className="w-full h-full object-cover"
+            />
           </div>
           
           {/* Wallet Address Card */}
@@ -230,6 +234,19 @@ const ProfilePage = () => {
                 </div>
               </div>
               
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-300">Avatar URL</label>
+                <input
+                  type="text"
+                  name="avatarUrl"
+                  value={formData.avatarUrl}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-[#333] rounded-lg bg-[#222] focus:ring-2 focus:ring-emerald-500 focus:outline-none text-white"
+                  placeholder="https://example.com/your-avatar.jpg"
+                />
+                <p className="text-xs text-gray-400 mt-1">Enter a URL to an image, or use the default placeholder</p>
+              </div>
+              
               <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
@@ -271,7 +288,7 @@ const ProfilePage = () => {
                 <div className="flex gap-8">
                   <div className="text-center">
                     <span className="block text-2xl font-bold text-white">0</span>
-                    <span className="text-sm text-gray-400">NFTs</span>
+                    <span className="text-sm text-gray-400">Tracks</span>
                   </div>
                   <div className="text-center">
                     <span className="block text-2xl font-bold text-white">0</span>
@@ -295,7 +312,7 @@ const ProfilePage = () => {
       {/* NFT Collection Section (Empty State) */}
       <div className="bg-gradient-to-b from-[#1c1c1c] to-[#111] rounded-xl shadow-xl overflow-hidden border border-[#333] mb-8">
         <div className="p-6 border-b border-[#333] flex items-center justify-between">
-          <h3 className="text-xl font-bold text-white">Your NFT Collection</h3>
+          <h3 className="text-xl font-bold text-white">Your Music Collection</h3>
           <span className="bg-[#222] text-gray-400 text-xs px-3 py-1 rounded-full border border-[#333]">
             0 items
           </span>
@@ -310,7 +327,7 @@ const ProfilePage = () => {
             </svg>
           </div>
           
-          <h4 className="text-2xl font-semibold mb-3 text-white">No NFTs in Your Collection</h4>
+          <h4 className="text-2xl font-semibold mb-3 text-white">No Music Tracks in Your Collection</h4>
           <NftDescriptionText />
           
           <div className="flex flex-col gap-4">

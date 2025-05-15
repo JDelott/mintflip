@@ -19,7 +19,7 @@ const NftDescriptionText: React.FC = () => {
 
   return (
     <div className="block text-center" style={forceHorizontalStyle}>
-      Your digital art collection is waiting to be built. Discover unique AI-generated music tracks and start collecting today.
+      Your digital music collection is waiting to be built. Discover unique AI-generated tracks and start collecting today.
     </div>
   );
 };

@@ -156,7 +156,15 @@ const ProfilePage = () => {
     <div className="max-w-4xl mx-auto">
       {/* Header with connect button */}
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold">Your Profile</h2>
+        <div className="flex items-center">
+          <div className="w-10 h-10 rounded-full bg-[#1db954] flex items-center justify-center mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <h2 className="text-3xl font-bold">{profile?.username || 'Account'}</h2>
+        </div>
         <ConnectButton showBalance chainStatus="icon" />
       </div>
       
@@ -312,7 +320,7 @@ const ProfilePage = () => {
       {/* NFT Collection Section (Empty State) */}
       <div className="bg-gradient-to-b from-[#1c1c1c] to-[#111] rounded-xl shadow-xl overflow-hidden border border-[#333] mb-8">
         <div className="p-6 border-b border-[#333] flex items-center justify-between">
-          <h3 className="text-xl font-bold text-white">Your Music Collection</h3>
+          <h3 className="text-xl font-bold text-white">My Collection</h3>
           <span className="bg-[#222] text-gray-400 text-xs px-3 py-1 rounded-full border border-[#333]">
             0 items
           </span>

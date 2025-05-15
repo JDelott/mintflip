@@ -11,12 +11,16 @@
     "contracts:start": "npm run start --filter=@repo/contracts",
     "contracts:deploy:local": "npm run deploy:local --filter=@repo/contracts",
     "contracts:build:package": "npm run build:package --filter=@repo/contracts",
-    "web:dev": "npm run dev --filter=web"
+    "web:dev": "npm run dev --filter=web",
+    "api:dev": "npm run dev --filter=@repo/api",
+    "api:build": "npm run build --filter=@repo/api",
+    "api:start": "npm run start --filter=@repo/api"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@tailwindcss/vite": "^4.1.6",
+    "@types/jsonwebtoken": "^9.0.9",
     "hardhat": "^2.24.0",
     "prettier": "^3.5.3",
     "turbo": "^2.5.3",

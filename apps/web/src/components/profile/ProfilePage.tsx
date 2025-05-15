@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useAccount, useEnsName, useEnsAvatar, useChainId, useSwitchChain } from 'wagmi';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { hardhat } from 'wagmi/chains';
 import NftDescriptionText from './NftDescriptionText';
-
-interface ProfileData {
-  username: string;
-  bio: string;
-  favGenres: string[];
-}
+import { useUserAuth } from '../../hooks/useUserAuth';
+import { fetchUserProfile, updateUserProfile } from '../../services/userService';
+import type { UserProfile, UpdateProfileData } from '../../services/userService';
 
 const defaultGenres = [
   'Hip-Hop', 'Electronic', 'Pop', 'Rock', 'Lo-Fi', 'Jazz', 'Classical', 'Ambient'
@@ -18,50 +15,83 @@ const ProfilePage = () => {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
-  const { data: ensName } = useEnsName({ address });
-  const { data: ensAvatar } = useEnsAvatar({ name: ensName?.toString() });
-  const [profileData, setProfileData] = useState<ProfileData>({
+  const { token, signIn } = useUserAuth();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState<UpdateProfileData>({
     username: '',
     bio: '',
-    favGenres: ['Electronic', 'Lo-Fi']
+    avatarUrl: '',
+    favoriteGenres: []
   });
-  const [isEditing, setIsEditing] = useState(false);
 
   // Check if user is on the correct network
   const isWrongNetwork = isConnected && chainId !== hardhat.id;
 
   useEffect(() => {
-    if (isConnected && address) {
-      // Here you would fetch the user's profile data from your backend
-      // For now, we'll just use mock data
-      setProfileData({
-        username: ensName || formatAddress(address),
-        bio: 'Web3 enthusiast and NFT collector passionate about AI-generated music.',
-        favGenres: ['Electronic', 'Lo-Fi']
-      });
+    async function loadProfile() {
+      if (!address) return;
+      
+      try {
+        setIsLoading(true);
+        const userProfile = await fetchUserProfile(address);
+        setProfile(userProfile);
+        
+        // Initialize form data
+        setFormData({
+          username: userProfile.username || '',
+          bio: userProfile.bio || '',
+          avatarUrl: userProfile.avatarUrl || '',
+          favoriteGenres: userProfile.favoriteGenres || []
+        });
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }, [address, isConnected, ensName]);
+    
+    loadProfile();
+  }, [address]);
 
   const formatAddress = (addr: string) => {
     return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
   };
 
-  const handleSaveProfile = () => {
-    setIsEditing(false);
-    // API call would go here
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const toggleGenre = (genre: string) => {
-    if (profileData.favGenres.includes(genre)) {
-      setProfileData({
-        ...profileData,
-        favGenres: profileData.favGenres.filter(g => g !== genre)
-      });
-    } else {
-      setProfileData({
-        ...profileData,
-        favGenres: [...profileData.favGenres, genre]
-      });
+  const handleGenreChange = (genre: string) => {
+    setFormData(prev => {
+      const currentGenres = prev.favoriteGenres || [];
+      const newGenres = currentGenres.includes(genre)
+        ? currentGenres.filter(g => g !== genre)
+        : [...currentGenres, genre];
+      
+      return { ...prev, favoriteGenres: newGenres };
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!token) {
+      await signIn();
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      const updatedProfile = await updateUserProfile(formData, token);
+      setProfile(updatedProfile);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -111,6 +141,15 @@ const ProfilePage = () => {
     );
   }
 
+  if (isLoading && !profile) {
+    return (
+      <div className="p-8 text-center">
+        <h2 className="text-2xl font-bold mb-4">Profile</h2>
+        <p>Loading profile...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header with connect button */}
@@ -127,14 +166,8 @@ const ProfilePage = () => {
         <div className="p-8 pt-0 relative">
           {/* Avatar */}
           <div className="absolute -top-12 left-8 w-24 h-24 rounded-full border-4 border-[#111] overflow-hidden shadow-lg">
-            {ensAvatar ? (
-              <img src={ensAvatar} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1db954] to-[#1aa34a]">
-                <span className="text-2xl font-bold text-white">
-                  {profileData.username.charAt(0).toUpperCase()}
-                </span>
-              </div>
+            {profile?.avatarUrl && (
+              <img src={profile.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
             )}
           </div>
           
@@ -156,13 +189,14 @@ const ProfilePage = () => {
           </div>
           
           {isEditing ? (
-            <div className="space-y-6 mt-12">
+            <form onSubmit={handleSubmit} className="space-y-6 mt-12">
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-300">Display Name</label>
                 <input
                   type="text"
-                  value={profileData.username}
-                  onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
                   className="w-full p-3 border border-[#333] rounded-lg bg-[#222] focus:ring-2 focus:ring-emerald-500 focus:outline-none text-white"
                   placeholder="How you want to be known"
                 />
@@ -171,8 +205,9 @@ const ProfilePage = () => {
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-300">Bio</label>
                 <textarea
-                  value={profileData.bio}
-                  onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
                   className="w-full p-3 border border-[#333] rounded-lg bg-[#222] min-h-32 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-white"
                   placeholder="Tell the community about yourself"
                 />
@@ -182,50 +217,54 @@ const ProfilePage = () => {
                 <label className="block text-sm font-medium mb-3 text-gray-300">Favorite Music Genres</label>
                 <div className="flex flex-wrap gap-2">
                   {defaultGenres.map(genre => (
-                    <button
-                      key={genre}
-                      onClick={() => toggleGenre(genre)}
-                      className={`px-3 py-1.5 rounded-full text-sm transition-colors border cursor-pointer ${
-                        profileData.favGenres.includes(genre)
-                          ? 'bg-[#1db954] border-[#1aa34a] text-white hover:bg-[#3ed672]'
-                          : 'bg-[#222] border-[#333] text-gray-300 hover:bg-[#333]'
-                      }`}
-                    >
+                    <label key={genre} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={(formData.favoriteGenres || []).includes(genre)}
+                        onChange={() => handleGenreChange(genre)}
+                        className="mr-2"
+                      />
                       {genre}
-                    </button>
+                    </label>
                   ))}
                 </div>
               </div>
               
               <div className="flex justify-end gap-3 pt-4">
                 <button
+                  type="button"
                   onClick={() => setIsEditing(false)}
                   className="px-6 py-2.5 border border-[#333] rounded-lg hover:bg-[#222] transition-colors text-gray-300 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={handleSaveProfile}
+                  type="submit"
                   className="px-6 py-2.5 bg-[#1db954] text-white rounded-lg hover:bg-[#1aa34a] transition-colors cursor-pointer"
+                  disabled={isLoading}
                 >
-                  Save Profile
+                  {isLoading ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
-            </div>
+            </form>
           ) : (
             <div className="mt-12">
-              <h1 className="text-2xl font-bold mb-1 text-white">{profileData.username}</h1>
-              <p className="text-gray-400 mb-6">{profileData.bio}</p>
+              <h1 className="text-2xl font-bold mb-1 text-white">{profile?.username || 'Anonymous User'}</h1>
+              <p className="text-gray-400 mb-6">{profile?.bio || 'No bio provided'}</p>
               
               <div className="mb-8">
                 <h3 className="text-sm font-medium uppercase tracking-wide text-gray-400 mb-3">Favorite Genres</h3>
-                <div className="flex flex-wrap gap-2">
-                  {profileData.favGenres.map(genre => (
-                    <span key={genre} className="px-3 py-1.5 bg-[#222] border border-[#333] rounded-full text-sm text-gray-300">
-                      {genre}
-                    </span>
-                  ))}
-                </div>
+                {profile?.favoriteGenres && profile.favoriteGenres.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {profile.favoriteGenres.map(genre => (
+                      <span key={genre} className="px-3 py-1.5 bg-[#222] border border-[#333] rounded-full text-sm text-gray-300">
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p>No favorite genres selected</p>
+                )}
               </div>
               
               <div className="border-t border-[#333] pt-6">

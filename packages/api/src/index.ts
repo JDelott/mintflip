@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { userRoutes } from './routes/userRoutes';
 import { connectDB } from './db/connection';
+import nftRoutes from './routes/nftRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/users', userRoutes);
+app.use('/api/nfts', nftRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

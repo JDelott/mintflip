@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { hardhat } from 'wagmi/chains';
-import NftDescriptionText from './NftDescriptionText';
+
 import { useUserAuth } from '../../hooks/useUserAuth';
 import { fetchUserProfile, updateUserProfile } from '../../services/userService';
 import type { UserProfile, UpdateProfileData } from '../../services/userService';
+import { fetchUserTracks } from '../../services/musicService';
+import { useMusic } from '../../hooks/useMusic';
+import TrackCard from '../ui/TrackCard';
+import type { Track } from '../../contexts/MusicContext.types';
 
 const DEFAULT_AVATAR_URL = "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp";
 
@@ -27,6 +31,9 @@ const ProfilePage = () => {
     avatarUrl: '',
     favoriteGenres: []
   });
+  const [userTracks, setUserTracks] = useState<Track[]>([]);
+  const [isLoadingTracks, setIsLoadingTracks] = useState(false);
+  const music = useMusic();
 
   // Check if user is on the correct network
   const isWrongNetwork = isConnected && chainId !== hardhat.id;
@@ -55,6 +62,24 @@ const ProfilePage = () => {
     }
     
     loadProfile();
+  }, [address]);
+
+  useEffect(() => {
+    if (!address) return;
+    
+    const loadUserTracks = async () => {
+      setIsLoadingTracks(true);
+      try {
+        const tracks = await fetchUserTracks(address);
+        setUserTracks(tracks);
+      } catch (error) {
+        console.error('Error loading user tracks:', error);
+      } finally {
+        setIsLoadingTracks(false);
+      }
+    };
+    
+    loadUserTracks();
   }, [address]);
 
   const formatAddress = (addr: string) => {
@@ -322,45 +347,62 @@ const ProfilePage = () => {
         <div className="p-6 border-b border-[#333] flex items-center justify-between">
           <h3 className="text-xl font-bold text-white">My Collection</h3>
           <span className="bg-[#222] text-gray-400 text-xs px-3 py-1 rounded-full border border-[#333]">
-            0 items
+            {userTracks.length} items
           </span>
         </div>
         
-        <div className="p-12 flex flex-col items-center justify-center text-center">
-          <div className="w-24 h-24 rounded-full bg-[#222] border border-[#333] flex items-center justify-center mb-8 shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#1db954]">
-              <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm0 0a10 10 0 1 1 0-20 10 10 0 0 1 0 20z" opacity="0.2"></path>
-              <path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94"></path>
-              <circle cx="12" cy="12" r="9"></circle>
-            </svg>
+        {isLoadingTracks ? (
+          <div className="p-12 flex items-center justify-center">
+            <div className="animate-spin w-8 h-8 border-t-2 border-r-2 border-primary rounded-full"></div>
           </div>
-          
-          <h4 className="text-2xl font-semibold mb-3 text-white">No Music Tracks in Your Collection</h4>
-          <NftDescriptionText />
-          
-          <div className="flex flex-col gap-4">
-            <button className="px-8 py-4 bg-[#1db954] text-white rounded-xl hover:bg-[#1aa34a] transition-colors shadow-lg flex items-center justify-center gap-3 font-medium cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
+        ) : userTracks.length > 0 ? (
+          <div className="p-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {userTracks.map(track => (
+                <TrackCard key={track.id} track={track} onClick={() => music?.playTrack(track)} />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="p-12 flex flex-col items-center justify-center text-center">
+            <div className="w-24 h-24 rounded-full bg-[#222] border border-[#333] flex items-center justify-center mb-8 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#1db954]">
+                <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm0 0a10 10 0 1 1 0-20 10 10 0 0 1 0 20z" opacity="0.2"></path>
+                <path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94"></path>
+                <circle cx="12" cy="12" r="9"></circle>
               </svg>
-              Browse Marketplace
-            </button>
+            </div>
             
-            <button 
-              onClick={() => window.dispatchEvent(new CustomEvent('navigation', { detail: 'upload' }))}
-              className="px-8 py-3 bg-transparent border border-[#333] text-gray-300 hover:bg-[#222] rounded-xl transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-              Upload Your Music
-            </button>
+            <h4 className="text-2xl font-semibold mb-3 text-white">No Music Tracks in Your Collection</h4>
+            <p className="text-gray-400 max-w-md mb-6">Upload and mint your music as NFTs to start building your collection.</p>
+            
+            <div className="flex flex-col gap-4">
+              <button 
+                onClick={() => window.dispatchEvent(new CustomEvent('navigation', { detail: 'marketplace' }))}
+                className="px-8 py-4 bg-[#1db954] text-white rounded-xl hover:bg-[#1aa34a] transition-colors shadow-lg flex items-center justify-center gap-3 font-medium cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="16"></line>
+                  <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                Browse Marketplace
+              </button>
+              
+              <button 
+                onClick={() => window.dispatchEvent(new CustomEvent('navigation', { detail: 'upload' }))}
+                className="px-8 py-3 bg-transparent border border-[#333] text-gray-300 hover:bg-[#222] rounded-xl transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Upload Your Music
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { MusicProvider } from './contexts/MusicContext'
 
 // Project ID from WalletConnect Cloud
 const projectId = '30d404517cc9c411d88eeabec2257428'
@@ -37,7 +38,9 @@ createRoot(document.getElementById('root')!).render(
             borderRadius: 'medium',
           })}
         >
-          <App />
+          <MusicProvider>
+            <App />
+          </MusicProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

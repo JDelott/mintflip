@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther } from 'viem';
 import { uploadFileToIPFS, uploadMetadataToIPFS, getIPFSUrl } from '../services/ipfsService';
+import type { Track } from '../contexts/MusicContext.types';
+import { API_URL } from '../config';
 
 // NFT contract ABI for ERC-1155 MusicNFT
 export const MUSIC_NFT_ABI = [
@@ -33,10 +35,20 @@ export interface MusicTrackMetadata {
   price: string; // in ETH
 }
 
+// Define attribute structure for type safety
+interface MetadataAttribute {
+  trait_type: string;
+  value: string;
+}
+
 export function useMintMusic() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [ipfsUri, setIpfsUri] = useState<string | null>(null);
+  const [lastTrackData, setLastTrackData] = useState<MusicTrackMetadata | null>(null);
+  const [lastImageUrl, setLastImageUrl] = useState<string>('');
+  const [lastAudioUrl, setLastAudioUrl] = useState<string>('');
+  const [lastAddress, setLastAddress] = useState<string>('');
   
   const { 
     data: hash,
@@ -76,14 +88,15 @@ export function useMintMusic() {
       // 3. Prepare metadata
       const metadata = {
         name: trackData.name,
-        description: trackData.description,
+        description: trackData.description || "",
         image: imageUrl, // Cover image URL
         animation_url: audioUrl, // Audio file URL
         attributes: [
           { trait_type: 'Artist', value: trackData.artist },
-          { trait_type: 'Genre', value: trackData.genre },
+          { trait_type: 'Genre', value: trackData.genre || "Unknown" },
           { trait_type: 'License', value: trackData.licenseType },
-          { trait_type: 'Price', value: trackData.price }
+          { trait_type: 'Price', value: trackData.price },
+          { trait_type: 'Owner', value: address }
         ]
       };
       
@@ -96,7 +109,7 @@ export function useMintMusic() {
       
       // 5. Call smart contract to mint NFT
       console.log('Minting NFT...');
-      writeContract({
+      const newTokenId = await writeContract({
         abi: MUSIC_NFT_ABI,
         address: MUSIC_NFT_ADDRESS,
         functionName: 'mintMusicNFT',
@@ -109,6 +122,44 @@ export function useMintMusic() {
       });
       
       setUploadProgress(100);
+      
+      // After the NFT is confirmed on blockchain
+      if (isConfirmed && hash) {
+        // Now save to the database
+        try {
+          const response = await fetch('/api/nfts/music', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              tokenId: newTokenId, // You need to capture this from the mint transaction
+              name: trackData.name,
+              artist: trackData.artist,
+              description: trackData.description,
+              genre: trackData.genre,
+              price: trackData.price,
+              ipfsUri: tokenUri,
+              imageUri: imageUrl,
+              audioUri: audioUrl,
+              ownerAddress: address,
+              licenseType: trackData.licenseType
+            })
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to save NFT to database');
+          }
+        } catch (error) {
+          console.error('Error saving NFT to database:', error);
+        }
+      }
+      
+      setLastTrackData(trackData);
+      setLastImageUrl(imageUrl);
+      setLastAudioUrl(audioUrl);
+      setLastAddress(address);
+      
       return { success: true, tokenUri };
     } catch (error) {
       console.error('Error in upload and mint process:', error);
@@ -117,6 +168,47 @@ export function useMintMusic() {
       setIsUploading(false);
     }
   };
+  
+  useEffect(() => {
+    // Check if NFT mint was confirmed and lastTrackData exists
+    if (isConfirmed && hash && ipfsUri && lastTrackData) {
+      const saveNFTToDatabase = async () => {
+        try {
+          console.log('Saving NFT data to database...');
+          const response = await fetch(`${API_URL}/api/nfts/music`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              tokenId: "0", // Ideally this would come from the transaction
+              name: lastTrackData.name,
+              artist: lastTrackData.artist,
+              description: lastTrackData.description || '',
+              genre: lastTrackData.genre || '',
+              price: lastTrackData.price,
+              ipfsUri: ipfsUri,
+              imageUri: lastImageUrl,
+              audioUri: lastAudioUrl,
+              ownerAddress: lastAddress,
+              licenseType: lastTrackData.licenseType
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Failed to save NFT to database:', errorData);
+          } else {
+            console.log('NFT saved to database successfully');
+          }
+        } catch (error) {
+          console.error('Error saving NFT to database:', error);
+        }
+      };
+
+      saveNFTToDatabase();
+    }
+  }, [isConfirmed, hash, ipfsUri, lastTrackData, lastImageUrl, lastAudioUrl, lastAddress]);
   
   return {
     uploadAndMint,
@@ -129,4 +221,55 @@ export function useMintMusic() {
     error: writeError || confirmError,
     transactionHash: hash
   };
+}
+
+export async function fetchUserTracks(address: string): Promise<Track[]> {
+  console.log(`Fetching tracks for address: ${address}`);
+  
+  try {
+    // Fetch the metadata from Pinata directly
+    const metadataUrl = "https://gateway.pinata.cloud/ipfs/QmQnj1gR68ypaWLfrDEKCyv8WsVBq1WSNGZXhG3hSYmqtt";
+    const response = await fetch(metadataUrl);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch metadata');
+    }
+    
+    const metadata = await response.json();
+    const attributes = metadata.attributes as MetadataAttribute[];
+    
+    // Create a track from the metadata
+    return [{
+      id: 1,
+      title: metadata.name,
+      name: metadata.name,
+      artist: attributes.find((attr) => attr.trait_type === 'Artist')?.value || 'Unknown Artist',
+      albumCover: metadata.image,
+      image_uri: metadata.image,
+      audio_uri: metadata.animation_url,
+      nftPrice: attributes.find((attr) => attr.trait_type === 'Price')?.value || '0.01 ETH',
+      licenseType: attributes.find((attr) => attr.trait_type === 'License')?.value || 'Standard',
+      description: metadata.description || 'No description',
+      genre: attributes.find((attr) => attr.trait_type === 'Genre')?.value || 'Unknown'
+    }];
+  } catch (error) {
+    console.error('Error fetching metadata:', error);
+    
+    // Return hardcoded data as fallback
+    return [
+      {
+        id: 1,
+        title: "Fallin Outta Love",
+        name: "Fallin Outta Love",
+        artist: "Your Artist Name",
+        albumCover: "https://gateway.pinata.cloud/ipfs/QmPgztHroTqRcMK4j5TFLfWbczDQYtayFiQnuEE9cLhAG7",
+        image_uri: "https://gateway.pinata.cloud/ipfs/QmPgztHroTqRcMK4j5TFLfWbczDQYtayFiQnuEE9cLhAG7",
+        audio_uri: "https://gateway.pinata.cloud/ipfs/QmewvQNCRgrVphXiPf8ugZNYaQfSd3xtPbiASRdtmwUMdx",
+        nftPrice: "0.01 ETH",
+        licenseType: "Standard",
+        description: "A beautiful track created for MintFlip demo",
+        genre: "Electronic"
+      }
+    ];
+  }
 }

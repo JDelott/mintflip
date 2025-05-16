@@ -348,7 +348,10 @@ const ProfilePage = () => {
               Browse Marketplace
             </button>
             
-            <button className="px-8 py-3 bg-transparent border border-[#333] text-gray-300 hover:bg-[#222] rounded-xl transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer">
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent('navigation', { detail: 'upload' }))}
+              className="px-8 py-3 bg-transparent border border-[#333] text-gray-300 hover:bg-[#222] rounded-xl transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>

@@ -1,75 +1,84 @@
-// Script to deploy contracts to the local network
-
-import { createPublicClient, createWalletClient, http, parseEther } from 'viem';
+import { createPublicClient, http, createWalletClient, parseEther } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 import { hardhat } from 'viem/chains';
-import hre from 'hardhat';
-import fs from 'fs';
-import path from 'path';
+import { artifacts } from 'hardhat';
+import * as fs from 'fs';
 
 async function main() {
   console.log("Starting deployment...");
+  
+  // Create viem clients
+  const publicClient = createPublicClient({
+    chain: hardhat,
+    transport: http()
+  });
 
+  // Get test account - using first hardhat account
+  const testKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+  const account = privateKeyToAccount(testKey);
+  const walletClient = createWalletClient({
+    account,
+    chain: hardhat,
+    transport: http()
+  });
+  
+  console.log(`Deploying from account: ${account.address}`);
+  
+  // Get contract artifacts
+  const MintFlipNFTArtifact = await artifacts.readArtifact("MintFlipNFT");
+  const MusicNFTArtifact = await artifacts.readArtifact("MusicNFT");
+  
+  // Deploy MintFlipNFT
+  console.log("Deploying MintFlipNFT...");
+  const mintFlipNFTHash = await walletClient.deployContract({
+    abi: MintFlipNFTArtifact.abi,
+    bytecode: MintFlipNFTArtifact.bytecode,
+    args: []
+  });
+  
+  const mintFlipNFTReceipt = await publicClient.waitForTransactionReceipt({ 
+    hash: mintFlipNFTHash 
+  });
+  const mintFlipNFTAddress = mintFlipNFTReceipt.contractAddress;
+  console.log(`MintFlipNFT deployed to: ${mintFlipNFTAddress}`);
+  
+  // Deploy MusicNFT
+  console.log("Deploying MusicNFT...");
+  const musicNFTHash = await walletClient.deployContract({
+    abi: MusicNFTArtifact.abi,
+    bytecode: MusicNFTArtifact.bytecode,
+    args: []
+  });
+  
+  const musicNFTReceipt = await publicClient.waitForTransactionReceipt({ 
+    hash: musicNFTHash 
+  });
+  const musicNFTAddress = musicNFTReceipt.contractAddress;
+  console.log(`MusicNFT deployed to: ${musicNFTAddress}`);
+  
+  // Save the contract addresses
+  console.log("Saving contract addresses...");
+  const contractAddresses = {
+    MintFlipNFT: mintFlipNFTAddress,
+    MusicNFT: musicNFTAddress
+  };
+  
+  // Make sure directories exist
   try {
-    // Get deployer client
-    const [deployer] = await hre.viem.getWalletClients();
-    console.log("Deploying from account:", deployer.account.address);
-
-    // Get the contract factory - this needs to be done differently with viem
-    const publicClient = await hre.viem.getPublicClient();
-    
-    // Deploy using the low-level viem API
-    console.log("Deploying MintFlipNFT...");
-    
-    // Get the artifact
-    const MintFlipNFTArtifact = await hre.artifacts.readArtifact("MintFlipNFT");
-    
-    // Deploy the contract
-    const hash = await deployer.deployContract({
-      abi: MintFlipNFTArtifact.abi,
-      bytecode: MintFlipNFTArtifact.bytecode as `0x${string}`,
-      args: [] // Constructor arguments, if any
-    });
-    
-    console.log("Deployment transaction hash:", hash);
-    
-    // Wait for transaction to be mined
-    const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    
-    // Get the contract address from the receipt
-    const contractAddress = receipt.contractAddress;
-    if (!contractAddress) {
-      throw new Error("Contract address not found in transaction receipt");
-    }
-    
-    console.log("MintFlipNFT deployed to:", contractAddress);
-    
-    // Save deployment info for the frontend
-    const deploymentDir = path.resolve(__dirname, '../deployments');
-    if (!fs.existsSync(deploymentDir)) {
-      fs.mkdirSync(deploymentDir, { recursive: true });
-    }
-    
-    fs.writeFileSync(
-      path.resolve(deploymentDir, 'contracts.json'),
-      JSON.stringify({
-        MintFlipNFT: {
-          address: contractAddress,
-          abi: MintFlipNFTArtifact.abi
-        }
-      }, null, 2)
-    );
-    
-    console.log("Deployment completed!");
-  } catch (error) {
-    console.error("Error during deployment:", error);
-    process.exit(1);
+    fs.mkdirSync('../web/src', { recursive: true });
+  } catch (err) {
+    console.log('Directory already exists');
   }
+  
+  fs.writeFileSync(
+    '../web/src/contractAddresses.json',
+    JSON.stringify(contractAddresses, null, 2)
+  );
+  
+  console.log("Deployment completed!");
 }
 
-// Execute the deployment
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

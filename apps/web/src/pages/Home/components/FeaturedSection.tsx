@@ -27,7 +27,15 @@ const FeaturedSection = () => {
             </svg>
             Explore
           </button>
-          <button className="btnbase btnsecondary cursor-pointer">Upload AI Track</button>
+          <button 
+            className="btnbase btnsecondary cursor-pointer"
+            onClick={() => {
+              // This will trigger your state-based navigation
+              window.dispatchEvent(new CustomEvent('navigation', { detail: 'upload' }));
+            }}
+          >
+            Upload AI Track
+          </button>
         </div>
       </div>
     </div>

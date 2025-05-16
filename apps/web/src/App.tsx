@@ -1,16 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from './components/layout/Layout'
 import HomePage from './pages/Home/HomePage'
 import ProfilePage from './components/profile/ProfilePage'
 import { NetworkSwitcher } from './components/profile/NetworkSwitcher'
 import { useAccount, useChainId } from 'wagmi'
 import { hardhat } from 'wagmi/chains'
+import UploadPage from './pages/Upload/UploadPage'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home')
   const chainId = useChainId()
   const { isConnected } = useAccount()
   
+  useEffect(() => {
+    // Listen for navigation events
+    const handleNavigation = (event: CustomEvent) => {
+      setCurrentPage(event.detail);
+    };
+    
+    window.addEventListener('navigation', handleNavigation as EventListener);
+    
+    return () => {
+      window.removeEventListener('navigation', handleNavigation as EventListener);
+    };
+  }, []);
+
   const renderPage = () => {
     switch(currentPage) {
       case 'home':
@@ -21,6 +35,8 @@ function App() {
         return <div className="p-6">Library Page</div>
       case 'profile':
         return <ProfilePage />
+      case 'upload':
+        return <UploadPage />
       default:
         return <HomePage />
     }

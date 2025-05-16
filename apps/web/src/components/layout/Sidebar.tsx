@@ -101,7 +101,10 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
       </div>
       
       <div className="mt-auto px-6 pb-4">
-        <button className="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md font-medium transition-colors cursor-pointer">
+        <button 
+          onClick={() => onNavigate('upload')}
+          className="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md font-medium transition-colors cursor-pointer"
+        >
           Upload Your AI Track
         </button>
       </div>

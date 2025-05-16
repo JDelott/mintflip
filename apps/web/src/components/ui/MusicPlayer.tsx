@@ -92,9 +92,20 @@ const MusicPlayer = () => {
     <div className="h-20 bg-background-elevated border-t border-background-highlight px-6 flex items-center">
       <div className="w-1/4 flex items-center">
         <img
-          src={currentTrack.image_uri || currentTrack.albumCover}
+          src={currentTrack.image_uri.includes('/ipfs/')
+              ? `https://ipfs.io/ipfs/${(currentTrack.image_uri.match(/\/ipfs\/([^/]+)/)?.[1] || '')}`
+              : currentTrack.image_uri || currentTrack.albumCover
+          }
           alt="Album Cover"
           className="h-14 w-14 rounded-md shadow-md mr-4 cursor-pointer"
+          onError={(e) => {
+            // Fallback for any loading errors
+            const target = e.target as HTMLImageElement;
+            if (target.src.includes('/ipfs/')) {
+              const cid = target.src.match(/\/ipfs\/([^/]+)/)?.[1] || '';
+              target.src = `https://ipfs.io/ipfs/${cid}`;
+            }
+          }}
         />
         <div>
           <h4 className="text-sm font-medium cursor-pointer">{currentTrack.name || currentTrack.title}</h4>
@@ -170,10 +181,23 @@ const MusicPlayer = () => {
       {/* Hidden audio element */}
       <audio
         ref={audioRef}
-        src={currentTrack.audio_uri}
+        src={currentTrack.audio_uri.includes('/ipfs/') 
+             ? `https://ipfs.io/ipfs/${currentTrack.audio_uri.match(/\/ipfs\/([^/]+)/)?.[1] || ''}` 
+             : currentTrack.audio_uri}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={nextTrack}
+        onError={(e) => {
+          console.error('Audio error:', e);
+          // Try alternate URL if we get an error
+          if (audioRef.current && currentTrack.audio_uri.includes('/ipfs/')) {
+            const cid = currentTrack.audio_uri.match(/\/ipfs\/([^/]+)/)?.[1] || '';
+            const directUrl = `https://ipfs.io/ipfs/${cid}`;
+            audioRef.current.src = directUrl;
+            audioRef.current.load();
+            if (isPlaying) audioRef.current.play().catch(err => console.error('Retry play error:', err));
+          }
+        }}
       />
     </div>
   );

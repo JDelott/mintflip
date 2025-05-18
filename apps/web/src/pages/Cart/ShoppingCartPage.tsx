@@ -17,6 +17,27 @@ const ShoppingCartPage: React.FC = () => {
     transactionHash 
   } = usePurchaseMusic();
   
+  // Function to fix IPFS image URLs with error handling - same as in TrackCard
+  const getFixedImageUrl = (url: string | undefined) => {
+    if (!url) return 'https://placehold.co/300x300/1db954/FFFFFF?text=No+Image';
+    
+    try {
+      if (url.includes('/Screenshot')) {
+        return url.split('/Screenshot')[0];
+      }
+      
+      // Fix IPFS URLs
+      if (url.includes('/ipfs/')) {
+        const cid = url.match(/\/ipfs\/([^/]+)/)?.[1] || '';
+        return `https://ipfs.io/ipfs/${cid}`;
+      }
+      
+      return url;
+    } catch {
+      return 'https://placehold.co/300x300/1db954/FFFFFF?text=Error';
+    }
+  };
+  
   const handleRemoveItem = (trackId: number) => {
     removeFromCart(trackId);
   };
@@ -90,9 +111,13 @@ const ShoppingCartPage: React.FC = () => {
         {items.map((item) => (
           <div key={item.track.id} className="flex items-center bg-background-elevated rounded-lg p-4 border border-background-highlight">
             <img
-              src={item.track.image_uri || item.track.albumCover}
+              src={getFixedImageUrl(item.track.image_uri || item.track.albumCover)}
               alt={item.track.name || item.track.title}
               className="w-16 h-16 object-cover rounded-md mr-4"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = 'https://placehold.co/300x300/1db954/FFFFFF?text=Error';
+              }}
             />
             
             <div className="flex-1">

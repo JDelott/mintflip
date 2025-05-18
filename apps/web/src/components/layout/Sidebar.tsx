@@ -85,18 +85,10 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
           
           {/* Shopping Cart Button */}
           <li>
-            <button
-              onClick={() => onNavigate('cart')}
-              className={`flex items-center w-full py-3 px-4 rounded-md transition-colors cursor-pointer ${
-                currentPage === 'cart'
-                  ? 'bg-background-elevated text-white'
-                  : 'text-text-secondary hover:text-white'
-              }`}
-            >
-              <span className="mr-4">
-                <CartIcon />
-              </span>
-            </button>
+            <CartIcon 
+              onClick={() => onNavigate('cart')} 
+              isActive={currentPage === 'cart'}
+            />
           </li>
         </ul>
       </nav>

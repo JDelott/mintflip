@@ -1,10 +1,11 @@
-import { createContext, useState, type ReactNode } from 'react';
-import type { Track, MusicContextType } from './MusicContext.types';
+import React, { createContext, useContext, useState } from 'react';
+import type { Track, MusicContextValue } from './MusicContext.types';
 
-// Export the context so it can be imported by useMusic
-export const MusicContext = createContext<MusicContextType | undefined>(undefined);
+// Create the context with a default value
+export const MusicContext = createContext<MusicContextValue | null>(null);
 
-export function MusicProvider({ children }: { children: ReactNode }) {
+// Create a provider component
+export const MusicProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [queue, setQueue] = useState<Track[]>([]);
@@ -47,22 +48,32 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     setQueue([]);
   };
 
+  // Create the context value object
+  const contextValue: MusicContextValue = {
+    currentTrack,
+    isPlaying,
+    queue,
+    playTrack,
+    pauseTrack,
+    resumeTrack,
+    nextTrack,
+    previousTrack,
+    addToQueue,
+    clearQueue
+  };
+
   return (
-    <MusicContext.Provider
-      value={{
-        currentTrack,
-        isPlaying,
-        queue,
-        playTrack,
-        pauseTrack,
-        resumeTrack,
-        nextTrack,
-        previousTrack,
-        addToQueue,
-        clearQueue
-      }}
-    >
+    <MusicContext.Provider value={contextValue}>
       {children}
     </MusicContext.Provider>
   );
-}
+};
+
+// Custom hook for using the music context
+export const useMusic = () => {
+  const context = useContext(MusicContext);
+  if (!context) {
+    throw new Error('useMusic must be used within a MusicProvider');
+  }
+  return context;
+};

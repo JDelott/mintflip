@@ -63,18 +63,16 @@ function App() {
   const isWrongNetwork = isConnected && chainId !== hardhat.id;
 
   return (
-    <>
-      <ShoppingCartProvider>
-        <NetworkSwitcher />
-        <Layout 
-          onNavigate={setCurrentPage} 
-          currentPage={currentPage}
-          isWrongNetwork={isWrongNetwork}
-        >
-          {renderPage()}
-        </Layout>
-      </ShoppingCartProvider>
-    </>
+    <ShoppingCartProvider>
+      <NetworkSwitcher />
+      <Layout 
+        onNavigate={setCurrentPage} 
+        currentPage={currentPage}
+        isWrongNetwork={isWrongNetwork}
+      >
+        {renderPage()}
+      </Layout>
+    </ShoppingCartProvider>
   )
 }
 

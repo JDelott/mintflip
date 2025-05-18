@@ -1,7 +1,7 @@
 // apps/web/src/pages/Marketplace/MarketplacePage.tsx
 import { useState, useEffect } from 'react';
 import { fetchTracks } from '../../services/musicService';
-import TrackCard from '../../components/ui/TrackCard';
+import ConnectedTrackCard from '../../components/ui/ConnectedTrackCard';
 import { useMusic } from '../../hooks/useMusic';
 import type { Track } from '../../contexts/MusicContext.types';
 
@@ -97,7 +97,7 @@ const MarketplacePage = ({ category = 'all' }: MarketplacePageProps) => {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {tracks.map((track) => (
-            <TrackCard 
+            <ConnectedTrackCard 
               key={track.id} 
               track={track} 
               onClick={() => handlePlayTrack(track)} 

@@ -1,18 +1,17 @@
 import React from 'react';
 import type { Track } from '../../contexts/MusicContext.types';
 
-// Simple mock shopping cart hook
-const dummyCart = {
-  addToCart: () => console.warn('Shopping cart not available'),
-  items: [],
-  getItemCount: () => 0,
-};
+// Define the global key to match the one in ShoppingCartContext
+const CART_GLOBAL_KEY = "MINTFLIP_GLOBAL_CART";
+
+// Define the window interface extension
+interface GlobalWindow extends Window {
+  [CART_GLOBAL_KEY]?: (track: Track) => boolean;
+}
 
 interface TrackCardProps {
   track: Track;
   onClick?: () => void;
-  // Optional prop for shopping cart functionality
-  addToCart?: (track: Track) => void;
 }
 
 const PlayIcon = () => (
@@ -29,7 +28,7 @@ const CartIcon = () => (
   </svg>
 );
 
-const TrackCard: React.FC<TrackCardProps> = ({ track, onClick, addToCart = dummyCart.addToCart }) => {
+const TrackCard: React.FC<TrackCardProps> = ({ track, onClick }) => {
   if (!track || typeof track !== 'object') {
     return (
       <div className="bg-background-elevated rounded-lg p-4 border border-background-highlight text-center">
@@ -59,28 +58,51 @@ const TrackCard: React.FC<TrackCardProps> = ({ track, onClick, addToCart = dummy
   const licenseType = track.licenseType || 'Standard';
   const imageUrl = getFixedImageUrl(track.image_uri || track.albumCover);
 
+  // Simplified add to cart handler that uses the global method
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (addToCart) {
-      addToCart(track);
+    // Attempt to stop propagation but don't rely on it
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    // Access the global method with proper typing
+    const globalAddToCart = (window as GlobalWindow)[CART_GLOBAL_KEY];
+    
+    if (typeof globalAddToCart === 'function') {
+      try {
+        globalAddToCart(track);
+        console.log("Called global addToCart with track:", track.name || track.title);
+      } catch (error) {
+        console.error("Error in global addToCart:", error instanceof Error ? error.message : String(error));
+      }
+    } else {
+      console.error("Global addToCart function not found!");
     }
   };
 
-  const handleClick = () => {
+  const handlePlayClick = (e: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (onClick) {
       onClick();
     }
   };
 
   return (
-    <div className="group cursor-pointer">
-      <div className="relative">
+    <div className="group">
+      <div 
+        className="relative cursor-pointer" 
+        onClick={onClick}
+      >
         <img
           src={imageUrl}
           alt={title}
           className="w-full aspect-square object-cover rounded-lg"
           onError={(e) => {
-            // Try direct CID URL if the image fails to load
             try {
               const target = e.target as HTMLImageElement;
               const url = target.src;
@@ -88,7 +110,6 @@ const TrackCard: React.FC<TrackCardProps> = ({ track, onClick, addToCart = dummy
                 const cid = url.match(/\/ipfs\/([^/]+)/)?.[1] || '';
                 target.src = `https://ipfs.io/ipfs/${cid}`;
               } else {
-                // Fallback to placeholder if nothing else works
                 target.src = 'https://placehold.co/300x300/1db954/FFFFFF?text=Error';
               }
             } catch (imgError) {
@@ -97,32 +118,48 @@ const TrackCard: React.FC<TrackCardProps> = ({ track, onClick, addToCart = dummy
             }
           }}
         />
+        
+        {/* Overlay with buttons */}
         <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
           <div className="flex gap-2">
             <button
-              onClick={handleClick}
-              className="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-primary-dark transition-colors"
-              aria-label="Play track"
+              type="button"
+              onClick={handlePlayClick}
+              className="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-primary-dark transition-colors cursor-pointer"
             >
               <PlayIcon />
             </button>
+            
             <button
+              type="button"
               onClick={handleAddToCart}
-              className="bg-white text-gray-800 rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-200 transition-colors"
-              aria-label="Add to cart"
+              className="bg-white text-gray-800 rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-200 transition-colors cursor-pointer"
             >
               <CartIcon />
             </button>
           </div>
         </div>
       </div>
-      <h3 className="tracktitle mt-2 overflow-hidden text-ellipsis whitespace-nowrap">{title}</h3>
-      <p className="trackartist overflow-hidden text-ellipsis whitespace-nowrap">{artist}</p>
-      <div className="flex items-center mt-1">
-        <span className="mr-2 text-xs bg-primary/20 text-primary rounded-full px-2 py-0.5">
-          {price}
-        </span>
-        <span className="text-xs text-text-secondary">{licenseType}</span>
+      
+      <div className="flex justify-between items-center mt-2">
+        <div onClick={onClick} className="cursor-pointer flex-1">
+          <h3 className="tracktitle overflow-hidden text-ellipsis whitespace-nowrap">{title}</h3>
+          <p className="trackartist overflow-hidden text-ellipsis whitespace-nowrap">{artist}</p>
+          <div className="flex items-center mt-1">
+            <span className="mr-2 text-xs bg-primary/20 text-primary rounded-full px-2 py-0.5">
+              {price}
+            </span>
+            <span className="text-xs text-text-secondary">{licenseType}</span>
+          </div>
+        </div>
+        
+        {/* Stand-alone cart button */}
+        <div 
+          onClick={handleAddToCart}
+          className="text-primary hover:text-white bg-primary/10 hover:bg-primary p-2 rounded-full transition-colors cursor-pointer"
+        >
+          <CartIcon />
+        </div>
       </div>
     </div>
   );

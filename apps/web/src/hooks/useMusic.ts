@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 import { MusicContext } from '../contexts/MusicContext';
-import type { MusicContextType } from '../contexts/MusicContext.types';
+import type { MusicContextValue } from '../contexts/MusicContext.types';
 
-export function useMusic(): MusicContextType {
+export function useMusic(): MusicContextValue {
   const context = useContext(MusicContext);
-  if (context === undefined) {
+  if (context === null) {
     throw new Error('useMusic must be used within a MusicProvider');
   }
   return context;

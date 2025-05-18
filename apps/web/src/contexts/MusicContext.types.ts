@@ -1,3 +1,5 @@
+// This file contains the types used by the MusicContext
+
 export interface Track {
   id: number;
   title: string;
@@ -12,10 +14,13 @@ export interface Track {
   genre?: string;
 }
 
-export interface MusicContextType {
+export interface MusicContextState {
   currentTrack: Track | null;
   isPlaying: boolean;
   queue: Track[];
+}
+
+export interface MusicContextValue extends MusicContextState {
   playTrack: (track: Track) => void;
   pauseTrack: () => void;
   resumeTrack: () => void;

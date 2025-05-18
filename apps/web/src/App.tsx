@@ -6,6 +6,7 @@ import { NetworkSwitcher } from './components/profile/NetworkSwitcher'
 import { useAccount, useChainId } from 'wagmi'
 import { hardhat } from 'wagmi/chains'
 import UploadPage from './pages/Upload/UploadPage'
+import MarketplacePage from './pages/Marketplace/Marketplace'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home')
@@ -37,6 +38,18 @@ function App() {
         return <ProfilePage />
       case 'upload':
         return <UploadPage />
+      case 'marketplace': 
+        return <MarketplacePage category="all" />
+      case 'trending':
+        return <MarketplacePage category="trending" />
+      case 'new':
+        return <MarketplacePage category="new" />
+      case 'exclusive':
+        return <MarketplacePage />
+      case 'commercial':
+        return <MarketplacePage />
+      case 'creators':
+        return <MarketplacePage />
       default:
         return <HomePage />
     }

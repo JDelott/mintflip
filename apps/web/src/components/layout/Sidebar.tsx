@@ -38,10 +38,7 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
 
   const marketCategories = [
     { id: 'trending', name: 'Trending Tracks' },
-    { id: 'new', name: 'New Releases' },
-    { id: 'exclusive', name: 'Exclusive Licenses' },
-    { id: 'commercial', name: 'Commercial Use' },
-    { id: 'creators', name: 'Top AI Creators' },
+    { id: 'new', name: 'New Releases' }
   ];
 
   return (
@@ -90,9 +87,28 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
       <div className="px-6">
         <h2 className="text-sm uppercase tracking-wider font-bold text-text-secondary mb-4">Marketplace</h2>
         <ul className="space-y-3">
+          <li>
+            <button 
+              onClick={() => onNavigate('marketplace')}
+              className={`w-full text-left ${
+                currentPage === 'marketplace' 
+                  ? 'text-white font-medium' 
+                  : 'text-text-secondary hover:text-white'
+              } transition-colors cursor-pointer`}
+            >
+              All Tracks
+            </button>
+          </li>
           {marketCategories.map(category => (
             <li key={category.id}>
-              <button className="w-full text-left text-text-secondary hover:text-white transition-colors cursor-pointer">
+              <button 
+                onClick={() => onNavigate(category.id)}
+                className={`w-full text-left ${
+                  currentPage === category.id 
+                    ? 'text-white font-medium' 
+                    : 'text-text-secondary hover:text-white'
+                } transition-colors cursor-pointer`}
+              >
                 {category.name}
               </button>
             </li>

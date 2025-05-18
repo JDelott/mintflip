@@ -5,6 +5,7 @@ import { fetchUserProfile } from '../../../services/userService';
 const WelcomeHeroSection = () => {
   const { address, isConnected } = useAccount();
   const [username, setUsername] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   useEffect(() => {
     if (isConnected && address) {
@@ -21,9 +22,19 @@ const WelcomeHeroSection = () => {
     }
   }, [isConnected, address]);
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Searching for:', searchQuery);
+    window.dispatchEvent(new CustomEvent('search', { detail: searchQuery }));
+  };
+
+  const handleUpload = () => {
+    window.dispatchEvent(new CustomEvent('navigation', { detail: 'upload' }));
+  };
+
   return (
     <div className="w-full">
-      {/* Hero Section */}
+      {/* Hero Section - Horizontal with Search */}
       <div 
         style={{
           position: 'relative',
@@ -31,14 +42,20 @@ const WelcomeHeroSection = () => {
           borderRadius: '12px',
           backgroundColor: '#121212',
           border: '1px solid #2a2a2a',
-          padding: '24px 28px',
+          padding: '16px 20px',
           backgroundImage: `
             linear-gradient(to right, rgba(29, 185, 84, 0.03) 1px, transparent 1px),
             linear-gradient(to bottom, rgba(29, 185, 84, 0.03) 1px, transparent 1px)
           `,
           backgroundSize: '20px 20px',
           overflow: 'hidden',
-          marginBottom: '40px' // Increased spacing between sections
+          marginBottom: '36px',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '16px'
         }}
       >
         {/* Very Subtle Gradient Overlay */}
@@ -49,123 +66,126 @@ const WelcomeHeroSection = () => {
           pointerEvents: 'none',
         }}></div>
         
-        {/* Content */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          {/* Welcome Message */}
-          <div style={{ marginBottom: '16px' }}>
-            <h1 style={{ 
-              fontSize: '26px', 
-              fontWeight: 'bold', 
-              color: '#ffffff',
-              marginBottom: '6px',
-            }}>
-              {isConnected && username 
-                ? `Welcome back, ${username}!` 
-                : "AI Music Marketplace"}
-            </h1>
-            
-            <p style={{ 
-              fontSize: '15px',
-              color: '#e0e0e0',
-            }}>
-              Create, mint, and trade AI-generated music as digital assets
-            </p>
-          </div>
-          
-          {/* Create Mint Trade Flow */}
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center',
-            marginTop: '16px',
+        {/* Left Side - Welcome Message */}
+        <div style={{ 
+          position: 'relative', 
+          zIndex: 1,
+          flex: '1',
+          minWidth: '220px',
+          maxWidth: '400px'
+        }}>
+          <h1 style={{ 
+            fontSize: '24px', 
+            fontWeight: 'bold', 
+            color: '#ffffff',
+            marginBottom: '4px',
           }}>
-            {/* Create */}
+            {isConnected && username 
+              ? `Welcome back, ${username}!` 
+              : "AI Music Marketplace"}
+          </h1>
+          
+          <p style={{ 
+            fontSize: '14px',
+            color: '#e0e0e0',
+          }}>
+            Upload, mint, and sell your AI-generated music
+          </p>
+        </div>
+        
+        {/* Right Side - Search Bar and Upload Button */}
+        <div style={{ 
+          position: 'relative',
+          zIndex: 1,
+          display: 'flex',
+          gap: '12px',
+          flex: '1',
+          minWidth: '280px',
+          maxWidth: '550px',
+          alignItems: 'center'
+        }}>
+          <form onSubmit={handleSearch} style={{ flexGrow: 1 }}>
             <div style={{ 
-              display: 'flex', 
+              position: 'relative',
+              display: 'flex',
+              width: '100%'
+            }}>
+              <input
+                type="text"
+                placeholder="Search music..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '8px',
+                  padding: '10px 14px 10px 38px',
+                  color: '#ffffff',
+                  width: '100%',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'all 0.2s ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)';
+                  e.currentTarget.style.borderColor = 'rgba(29, 185, 84, 0.4)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                }}
+              />
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="16" 
+                height="16" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="#999999"
+                style={{
+                  position: 'absolute',
+                  left: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none'
+                }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </form>
+          
+          {/* Upload Button */}
+          <button 
+            onClick={handleUpload}
+            style={{
+              display: 'flex',
               alignItems: 'center',
-              backgroundColor: 'rgba(29, 185, 84, 0.08)',
+              backgroundColor: '#1db954',
+              color: 'white',
+              border: 'none',
               borderRadius: '8px',
-              padding: '8px 14px',
+              padding: '9px 16px',
+              fontSize: '14px',
+              fontWeight: '600',
               cursor: 'pointer',
+              whiteSpace: 'nowrap',
               transition: 'all 0.2s ease',
             }}
             onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(29, 185, 84, 0.12)';
+              e.currentTarget.style.backgroundColor = '#1ed760';
               e.currentTarget.style.transform = 'translateY(-1px)';
             }}
             onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(29, 185, 84, 0.08)';
+              e.currentTarget.style.backgroundColor = '#1db954';
               e.currentTarget.style.transform = 'translateY(0)';
             }}
-            onClick={() => window.dispatchEvent(new CustomEvent('navigation', { detail: 'create' }))}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#1db954" style={{ marginRight: '8px' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-              </svg>
-              <span style={{ color: '#1db954', fontWeight: '600', fontSize: '14px' }}>Create</span>
-            </div>
-            
-            {/* Arrow */}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ margin: '0 12px' }}>
-              <path d="M9 18L15 12L9 6" stroke="#4a4a4a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ marginRight: '6px' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
-            
-            {/* Mint */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              backgroundColor: 'rgba(29, 185, 84, 0.08)',
-              borderRadius: '8px',
-              padding: '8px 14px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(29, 185, 84, 0.12)';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(29, 185, 84, 0.08)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-            onClick={() => window.dispatchEvent(new CustomEvent('navigation', { detail: 'mint' }))}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#1db954" style={{ marginRight: '8px' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span style={{ color: '#1db954', fontWeight: '600', fontSize: '14px' }}>Mint</span>
-            </div>
-            
-            {/* Arrow */}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ margin: '0 12px' }}>
-              <path d="M9 18L15 12L9 6" stroke="#4a4a4a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            
-            {/* Trade */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              backgroundColor: 'rgba(29, 185, 84, 0.08)',
-              borderRadius: '8px',
-              padding: '8px 14px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(29, 185, 84, 0.12)';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(29, 185, 84, 0.08)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-            onClick={() => window.dispatchEvent(new CustomEvent('navigation', { detail: 'trade' }))}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#1db954" style={{ marginRight: '8px' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <span style={{ color: '#1db954', fontWeight: '600', fontSize: '14px' }}>Trade</span>
-            </div>
-          </div>
+            Upload
+          </button>
         </div>
       </div>
       

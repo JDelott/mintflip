@@ -3,6 +3,7 @@ import { useAccount } from 'wagmi';
 import { useState, useEffect } from 'react';
 import { fetchUserProfile } from '../../services/userService';
 import type { UserProfile } from '../../services/userService';
+import CartIcon from '../ui/CartIcon';
 
 interface SidebarProps {
   onNavigate: (page: string) => void;
@@ -81,6 +82,22 @@ const Sidebar = ({ onNavigate, currentPage }: SidebarProps) => {
               </button>
             </li>
           ))}
+          
+          {/* Shopping Cart Button */}
+          <li>
+            <button
+              onClick={() => onNavigate('cart')}
+              className={`flex items-center w-full py-3 px-4 rounded-md transition-colors cursor-pointer ${
+                currentPage === 'cart'
+                  ? 'bg-background-elevated text-white'
+                  : 'text-text-secondary hover:text-white'
+              }`}
+            >
+              <span className="mr-4">
+                <CartIcon />
+              </span>
+            </button>
+          </li>
         </ul>
       </nav>
       

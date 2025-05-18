@@ -7,6 +7,8 @@ import { useAccount, useChainId } from 'wagmi'
 import { hardhat } from 'wagmi/chains'
 import UploadPage from './pages/Upload/UploadPage'
 import MarketplacePage from './pages/Marketplace/Marketplace'
+import ShoppingCartPage from './pages/Cart/ShoppingCartPage'
+import { ShoppingCartProvider } from './contexts/ShoppingCartContext'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home')
@@ -44,6 +46,8 @@ function App() {
         return <MarketplacePage category="trending" />
       case 'new':
         return <MarketplacePage category="new" />
+      case 'cart':
+        return <ShoppingCartPage />
       case 'exclusive':
         return <MarketplacePage />
       case 'commercial':
@@ -60,14 +64,16 @@ function App() {
 
   return (
     <>
-      <NetworkSwitcher />
-      <Layout 
-        onNavigate={setCurrentPage} 
-        currentPage={currentPage}
-        isWrongNetwork={isWrongNetwork}
-      >
-        {renderPage()}
-      </Layout>
+      <ShoppingCartProvider>
+        <NetworkSwitcher />
+        <Layout 
+          onNavigate={setCurrentPage} 
+          currentPage={currentPage}
+          isWrongNetwork={isWrongNetwork}
+        >
+          {renderPage()}
+        </Layout>
+      </ShoppingCartProvider>
     </>
   )
 }
